@@ -17,9 +17,24 @@
 
 ---
 
+## 스킬 배포 방식 (2026-09-09 전환)
+
+`tools/sync-agent-skills.sh`가 `skills/`를 **사용자 스코프**로 복사합니다:
+
+| 도구 | 배포 위치 | 로딩 |
+|------|---------|------|
+| Claude Code | `~/.claude/skills/` | description 매칭 시 조건부 |
+| Codex | `~/.agents/skills/` | description 매칭 시 조건부 |
+
+이러면 어느 워크스페이스에서 작업하든 **크로스레포 접근 없이** 공통 스킬이 잡힙니다.
+단 프로세스 척추(`workflow`·`communication`·`code-conventions`)는 조건부로 두면 위험하므로
+`CLAUDE.md`에서 `@import`로 상시 로드합니다.
+
+> **공통 레포를 `git pull` 한 뒤에는 sync를 다시 실행해야 반영됩니다.**
+
 ## 스킬 라우팅 표
 
-`skills/<이름>/SKILL.md` 경로에 있습니다. Claude Code는 상시 항목을 `CLAUDE.md`에서 자동 주입하므로 수동 참조가 불필요합니다.
+`skills/<이름>/SKILL.md` 가 정본입니다. 자동 탐색이 없는 에이전트는 아래 표를 보고 직접 여세요.
 
 ### 상시 (매 작업에 적용)
 

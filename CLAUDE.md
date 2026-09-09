@@ -6,19 +6,23 @@
 
 @AGENTS.md
 
-## 상시 로드 (Claude 전용 메커니즘)
+## 상시 로드 (프로세스 척추 — 조건부로 두면 안 되는 것만)
 
 @skills/workflow/SKILL.md
-@skills/brainstorming/SKILL.md
-@skills/writing-plans/SKILL.md
-@skills/jira-tickets/SKILL.md
-@skills/subagent-dev/SKILL.md
-@skills/writing-policy/SKILL.md
-@skills/gcloud/SKILL.md
-@skills/firebase-deploy-safety/SKILL.md
 @skills/communication/SKILL.md
 @skills/code-conventions/SKILL.md
-@skills/ralph-loop/SKILL.md
 
-> opt-in 스킬(`cost-proportionality-review`·`diagnosing-bugs`·`git-guardrails`)은 상시 로드하지 않습니다 —
-> `AGENTS.md`의 라우팅 표를 보고 필요할 때 해당 `skills/<이름>/SKILL.md`를 직접 읽으세요.
+## 나머지 공통 스킬은 사용자 스코프에서 조건부 로드됩니다
+
+`brainstorming`·`writing-plans`·`jira-tickets`·`subagent-dev`·`writing-policy`·`gcloud`·
+`firebase-deploy-safety`·`ralph-loop`·`cost-proportionality-review`·`diagnosing-bugs`·`git-guardrails`
+
+`tools/sync-agent-skills.sh`가 `skills/`를 `~/.claude/skills/`(Claude)와 `~/.agents/skills/`(Codex)에
+복사하므로, **크로스레포 접근 없이** 관련 작업에서 description 매칭으로 자동 로드됩니다.
+
+> 이전에는 위 11개까지 전부 `@import`로 상시 강제 로드했습니다(약 1,400줄). 작업과 무관해도 매 세션
+> 컨텍스트를 차지했고, 다른 워크스페이스에서는 크로스레포 읽기 권한 프롬프트까지 떴습니다.
+> 2026-09-09에 사용자 스코프 배포로 전환했습니다.
+
+**공통 레포를 `git pull` 한 뒤에는 `bash tools/sync-agent-skills.sh`를 실행해야 반영됩니다.**
+sync를 안 돌려도 위 3개(프로세스 척추)는 `@import`로 살아 있어 조용히 망가지지 않습니다.
