@@ -222,7 +222,7 @@ git commit -m "chore: communication·code-conventions 스킬 카탈로그 등록
 ### 미흡 시 처리
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 
 # 코멘트 작성 + 작성자 멘션
 cat > /tmp/comment.json << 'EOF'
@@ -257,7 +257,7 @@ curl -s -u "$JIRA_AUTH" -X POST \
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 
 TICKET_KEY="<TICKET-KEY>"
 RESULT=$(curl -s -u "$JIRA_AUTH" "$JIRA_BASE/issue/$TICKET_KEY?fields=summary,issuetype,priority,assignee,parent,comment,remotelinks")
@@ -324,7 +324,7 @@ description: "개발 워크플로우 — 항상 활성. 티켓 주도 Step 0~8, 
 
 ```
 [workspace]/
-├── claude-common-workflow/
+├── agent-common-workflow/
 ├── [index-repo]/
 └── [sub-repo]/
     └── worktrees/
@@ -389,7 +389,7 @@ Step 8  종결         티켓 Done → 컨플루언스 문서화 → 워크트�
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
 
 # 1. 공통 워크플로우 최신화
-git -C "$REPO_ROOT/../claude-common-workflow" pull
+git -C "$REPO_ROOT/../agent-common-workflow" pull
 
 # 2. 잔존 서버 포트 확인 — 과도한 포트 점유 시 정리 후 진행
 lsof -i :{port}                          # macOS — 포트는 서브 레포 CLAUDE.md 참조
@@ -512,7 +512,7 @@ PR 생성 후:
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 # 상태 Done 전환 + 코멘트 (PR 링크 포함)
 # transition-id는 프로젝트 skills/jira-tickets/SKILL.md 참조
 ```
@@ -579,10 +579,10 @@ git commit -m "feat: workflow 스킬 전면 재작성 — 티켓 주도 Step 0~8
 
 ```bash
 cd "$(git rev-parse --show-toplevel)"
-grep -r "\.\./claude-common-workflow" skills/
+grep -r "\.\./agent-common-workflow" skills/
 ```
 
-결과가 있으면 모두 `$REPO_ROOT/../claude-common-workflow` 패턴으로 교체.
+결과가 있으면 모두 `$REPO_ROOT/../agent-common-workflow` 패턴으로 교체.
 
 - [ ] **Step 2: skills/README.md 스킬 목록 업데이트**
 

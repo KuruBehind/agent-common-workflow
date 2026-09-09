@@ -14,7 +14,7 @@
 
 ```
 Desktop/dev/
-├── claude-common-workflow/        ← 공통 워크플로우 스킬 레포 (KuruBehind/claude-common-workflow)
+├── agent-common-workflow/        ← 공통 워크플로우 스킬 레포 (KuruBehind/agent-common-workflow)
 │   └── skills/
 │       ├── workflow/SKILL.md      step 인덱스, 예외 경로
 │       ├── brainstorming/SKILL.md
@@ -55,12 +55,12 @@ Desktop/dev/
 | 파일 | 역할 | 작성 기준 |
 |------|------|---------|
 | `CLAUDE.md` | 공통 페르소나·크로스 레포 협업 규칙, 스킬 경로 | 최소화 — 구조 다이어그램·기술스택 상세 제외. 서브 레포 세부 규칙은 각 레포 CLAUDE.md에 위임 |
-| `skills/README.md` | 공통 vs 전용 스킬 참조 구조 | `../claude-common-workflow/skills/`와 `skills/` 역할 명시 |
+| `skills/README.md` | 공통 vs 전용 스킬 참조 구조 | `../agent-common-workflow/skills/`와 `skills/` 역할 명시 |
 | `skills/workflow-env/SKILL.md` | 실행 환경 설정 | 머신별 PATH, 서브프로젝트별 lint 명령어 |
 | `skills/jira-tickets/SKILL.md` | Jira 설정 오버라이드 | 실 자격증명, 프로젝트 키, 에픽 목록 |
 | `.gitignore` | 서브 레포·워크트리 디렉토리, 임시 파일 | 아래 템플릿 참조 |
 | `.claude/settings.json` | Claude Code 권한 설정 | 삭제 계열만 ask, 나머지 allow |
-| `README.md` | 레포 구성 및 셋업 절차 | `claude-common-workflow` 링크 포함. 실제 org/레포명 기재 |
+| `README.md` | 레포 구성 및 셋업 절차 | `agent-common-workflow` 링크 포함. 실제 org/레포명 기재 |
 
 ### 각 서브 레포
 
@@ -81,7 +81,7 @@ Desktop/dev/
 ```
 
 > 공통 스킬(brainstorming, writing-plans 등)은 서브 레포에 두지 않습니다.  
-> `../claude-common-workflow/skills/`를 참조합니다.
+> `../agent-common-workflow/skills/`를 참조합니다.
 
 ---
 
@@ -140,7 +140,7 @@ Desktop/dev/
 - 요청받지 않은 전역 설정 파일을 임의로 수정하지 마세요.
 
 ## 워크플로우
-> 순서 및 step별 절차: `../claude-common-workflow/skills/workflow/SKILL.md` 참조
+> 순서 및 step별 절차: `../agent-common-workflow/skills/workflow/SKILL.md` 참조
 
 ## 크로스 레포 협업 규칙
 | 규칙 | 내용 |
@@ -151,7 +151,7 @@ Desktop/dev/
 
 ## 스킬 카탈로그
 
-### 공통 (`../claude-common-workflow/skills/`)
+### 공통 (`../agent-common-workflow/skills/`)
 - `workflow/SKILL.md` — step 인덱스 및 예외 경로
 - `brainstorming/SKILL.md` — Step 0a
 - `writing-plans/SKILL.md` — Step 0b
@@ -173,8 +173,8 @@ Desktop/dev/
 ## 5. 신규 프로젝트 적용 절차
 
 ```bash
-# 0. claude-common-workflow 클론 (최초 1회)
-git clone git@github.com:KuruBehind/claude-common-workflow.git ~/Desktop/dev/claude-common-workflow
+# 0. agent-common-workflow 클론 (최초 1회)
+git clone git@github.com:KuruBehind/agent-common-workflow.git ~/Desktop/dev/agent-common-workflow
 
 # 1. 인덱스 폴더 생성 및 파일 작성
 mkdir ~/Desktop/dev/[project] && cd ~/Desktop/dev/[project]
@@ -205,7 +205,7 @@ git clone git@github.com:KuruBehind/[sub-repo-b].git [sub-repo-b]
 ### 단독 작업 (서브 레포 단일 변경)
 
 해당 레포의 `CLAUDE.md` 및 `.github/skills/`를 따릅니다.  
-공통 스킬은 `../claude-common-workflow/skills/`에서 자동 참조.
+공통 스킬은 `../agent-common-workflow/skills/`에서 자동 참조.
 
 ### 동시 작업 (서브 레포 2개 이상 동시 변경)
 
@@ -252,14 +252,14 @@ yamaharu/yamaharu-web/CLAUDE.md  ← 자동 로드 (레포 전용 규칙)
 
 | 방식 | 로딩 시점 | 적용 범위 |
 |------|---------|---------|
-| CLAUDE.md `@path` (`@import`) | **항상 전체 강제 로드** — 작업 내용과 무관하게 매 세션 로드됨. progressive disclosure 아님 | 어떤 경로든 상대경로로 참조 가능 (예: `@../claude-common-workflow/CLAUDE.md`) |
-| `.claude/skills/<name>/SKILL.md` (Skill 자동 탐색) | frontmatter `description`이 현재 작업과 매칭될 때만 **조건부 로드**. 호출 식별자는 **디렉토리명**(frontmatter `name` 필드 아님) | **현재 프로젝트 루트 밑에 물리적으로 있어야만** 인식됨. 다른 레포(`claude-common-workflow` 등)에 있는 스킬은 자동으로 안 잡힘 |
+| CLAUDE.md `@path` (`@import`) | **항상 전체 강제 로드** — 작업 내용과 무관하게 매 세션 로드됨. progressive disclosure 아님 | 어떤 경로든 상대경로로 참조 가능 (예: `@../agent-common-workflow/CLAUDE.md`) |
+| `.claude/skills/<name>/SKILL.md` (Skill 자동 탐색) | frontmatter `description`이 현재 작업과 매칭될 때만 **조건부 로드**. 호출 식별자는 **디렉토리명**(frontmatter `name` 필드 아님) | **현재 프로젝트 루트 밑에 물리적으로 있어야만** 인식됨. 다른 레포(`agent-common-workflow` 등)에 있는 스킬은 자동으로 안 잡힘 |
 
 **실무 판단 기준:**
 - 거의 모든 세션에 필요한 것(실행 환경 PATH, 항상 지켜야 할 페르소나 규칙 등) → CLAUDE.md `@import`로 상시 로드
 - 특정 상황에만 필요한 것(특정 도메인 작업, 특정 기술스택 작업 등) → 그 레포 자체 `.claude/skills/`에 두어 조건부 로드
 
-**`../claude-common-workflow/skills/`처럼 다른 레포에 있는 스킬을 조건부로 쓰고 싶다면?** 공식적으로는 `claude --add-dir ../claude-common-workflow` 플래그(또는 세션 중 `/add-dir` 명령)로만 가능합니다. 이건 세션마다 개인이 직접 켜야 하는 로컬 실행 옵션이라 팀 전체에 자동 적용되지 않습니다 — `.claude/settings.json`에 이를 영구 설정하는 공식 키는 없습니다. 그래서 여러 인덱스 레포가 공유하는 `claude-common-workflow`의 스킬은 현재 구조상 `@import`(상시 강제 로드)가 사실상 유일하게 팀 전체에 안전하게 보장되는 방식입니다 — 비효율적이지만 의도적인 트레이드오프로 이해하고 사용할 것.
+**`../agent-common-workflow/skills/`처럼 다른 레포에 있는 스킬을 조건부로 쓰고 싶다면?** 공식적으로는 `claude --add-dir ../agent-common-workflow` 플래그(또는 세션 중 `/add-dir` 명령)로만 가능합니다. 이건 세션마다 개인이 직접 켜야 하는 로컬 실행 옵션이라 팀 전체에 자동 적용되지 않습니다 — `.claude/settings.json`에 이를 영구 설정하는 공식 키는 없습니다. 그래서 여러 인덱스 레포가 공유하는 `agent-common-workflow`의 스킬은 현재 구조상 `@import`(상시 강제 로드)가 사실상 유일하게 팀 전체에 안전하게 보장되는 방식입니다 — 비효율적이지만 의도적인 트레이드오프로 이해하고 사용할 것.
 
 ---
 
@@ -274,4 +274,4 @@ yamaharu/yamaharu-web/CLAUDE.md  ← 자동 로드 (레포 전용 규칙)
 
 | 레포 | GitHub | 역할 |
 |------|--------|------|
-| claude-common-workflow | [KuruBehind/claude-common-workflow](https://github.com/KuruBehind/claude-common-workflow) | 모든 인덱스 레포가 공유하는 워크플로우 스킬 원본 |
+| agent-common-workflow | [KuruBehind/agent-common-workflow](https://github.com/KuruBehind/agent-common-workflow) | 모든 인덱스 레포가 공유하는 워크플로우 스킬 원본 |

@@ -3,7 +3,7 @@
 인증 정보: `.env.local` (`JIRA_EMAIL`, `JIRA_API_TOKEN`)
 
 ```bash
-source ./claude-common-workflow/.env.local
+source ./agent-common-workflow/.env.local
 AUTH="$JIRA_EMAIL:$JIRA_API_TOKEN"
 BASE="https://kurubehind.atlassian.net/wiki/rest/api"
 

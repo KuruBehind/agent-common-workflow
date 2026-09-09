@@ -9,7 +9,7 @@ description: "개발 워크플로우 — 항상 활성. 티켓 주도 Step 0~8, 
 
 ```
 [workspace]/
-├── claude-common-workflow/
+├── agent-common-workflow/
 ├── [index-repo]/
 └── [sub-repo]/
     └── worktrees/
@@ -82,10 +82,10 @@ REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
 INDEX_REPO=$(cd "$REPO_ROOT/.." && pwd)
 WORKSPACE_ROOT=$(cd "$INDEX_REPO/.." && pwd)
 # 유형 A(플랫) / B(중첩) 모두 대응 — docs/conventions/repo-root-path.md 참조
-if [ -f "$WORKSPACE_ROOT/claude-common-workflow/.env.local" ]; then
-  CW="$WORKSPACE_ROOT/claude-common-workflow"
+if [ -f "$WORKSPACE_ROOT/agent-common-workflow/.env.local" ]; then
+  CW="$WORKSPACE_ROOT/agent-common-workflow"
 else
-  CW="$INDEX_REPO/claude-common-workflow"
+  CW="$INDEX_REPO/agent-common-workflow"
 fi
 
 # 1. 공통 워크플로우 최신화
@@ -227,7 +227,7 @@ PR 생성 후:
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 # 상태 Done 전환 + 코멘트 (PR 링크 포함)
 # transition-id는 프로젝트 skills/jira-tickets/SKILL.md 참조
 ```

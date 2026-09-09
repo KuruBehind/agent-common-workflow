@@ -7,7 +7,7 @@
 
 ```
 Desktop/dev/
-├── claude-common-workflow/skills/   ← 이 디렉토리 (공통 원본)
+├── agent-common-workflow/skills/   ← 이 디렉토리 (공통 원본)
 │   ├── workflow/                    항상 활성 — step 인덱스, 예외 경로
 │   ├── brainstorming/               Step 0a — 설계 수립
 │   ├── writing-plans/               Step 0b — 구현 플랜
@@ -39,7 +39,7 @@ Desktop/dev/
 ### opt-in (CLAUDE.md `@import` 카탈로그에 미등록 — 상시 로드 아님)
 
 버그 디버깅·git 훅처럼 특정 상황에서만 필요한 스킬. 공유 레포 특성상 조건부 자동 로드가 안 되므로,
-필요할 때 `claude --add-dir ../claude-common-workflow` 세션에서 트리거하거나 수동으로 참조한다.
+필요할 때 `claude --add-dir ../agent-common-workflow` 세션에서 트리거하거나 수동으로 참조한다.
 (왜 상시 등록 안 하는지: [docs/index-repo-pattern.md](../docs/index-repo-pattern.md) 7번 섹션 참조)
 
 | 스킬 | 설명 |
@@ -55,8 +55,8 @@ Desktop/dev/
 ```markdown
 <!-- CLAUDE.md 스킬 카탈로그 예시 -->
 
-### 공통 스킬 (`../claude-common-workflow/skills/`)
-- [Jira 티켓 템플릿] `../claude-common-workflow/skills/jira-tickets/SKILL.md`
+### 공통 스킬 (`../agent-common-workflow/skills/`)
+- [Jira 티켓 템플릿] `../agent-common-workflow/skills/jira-tickets/SKILL.md`
 
 ### 워크스페이스 전용 스킬 (`skills/`)
 - [Jira 티켓] `skills/jira-tickets/SKILL.md`  ← 실 자격증명 오버라이드
@@ -66,5 +66,5 @@ Desktop/dev/
 ## 업데이트
 
 ```bash
-cd ~/Desktop/dev/claude-common-workflow && git pull
+cd ~/Desktop/dev/agent-common-workflow && git pull
 ```

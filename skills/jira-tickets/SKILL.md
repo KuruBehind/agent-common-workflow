@@ -50,7 +50,7 @@ description: "Jira 티켓 생성 절차 — tickets.md를 Jira Task/Sub-task로 
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 export JIRA_AUTH="$JIRA_EMAIL:$JIRA_API_TOKEN"
 export JIRA_BASE="$JIRA_URL/rest/api/3"
 
@@ -103,7 +103,7 @@ curl -s -u "$JIRA_AUTH" -X POST \
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 export JIRA_AUTH="$JIRA_EMAIL:$JIRA_API_TOKEN"
 export JIRA_BASE="$JIRA_URL/rest/api/3"
 ```
@@ -115,7 +115,7 @@ export JIRA_BASE="$JIRA_URL/rest/api/3"
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-cp "$REPO_ROOT/../claude-common-workflow/.env.example" "$REPO_ROOT/../claude-common-workflow/.env.local"
+cp "$REPO_ROOT/../agent-common-workflow/.env.example" "$REPO_ROOT/../agent-common-workflow/.env.local"
 # .env.local을 열어 실제 값으로 채울 것
 ```
 
@@ -128,7 +128,7 @@ cp "$REPO_ROOT/../claude-common-workflow/.env.example" "$REPO_ROOT/../claude-com
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 PROJECT="<PROJECT_KEY>"
 EPIC_TYPE_ID="<epic-issuetype-id>"
 
@@ -145,7 +145,7 @@ curl -s -u "$JIRA_AUTH" -H "Accept: application/json" \
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 
 curl -s -u "$JIRA_AUTH" -H "Accept: application/json" \
   "$JIRA_BASE/search/jql" \
@@ -219,7 +219,7 @@ curl -s -u "$JIRA_AUTH" -H "Accept: application/json" \
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 PROJECT_KEY="<KEY>"
 TASK_TYPE_ID="<task-issuetype-id>"
 SUBTASK_TYPE_ID="<subtask-issuetype-id>"
@@ -451,17 +451,17 @@ curl -s -u "$JIRA_AUTH" -X PUT \
 워크트리 루트에 `context.md` 생성. 수동 편집 금지. 세션 재개 시 재생성.
 
 > **경로 주의:** 서브 레포가 인덱스 레포 내부에 중첩된 경우 (`kuru/kuru_mobile/`),
-> `REPO_ROOT/../claude-common-workflow` 가 아닌 `REPO_ROOT/../../claude-common-workflow` 로 접근해야 함.
+> `REPO_ROOT/../agent-common-workflow` 가 아닌 `REPO_ROOT/../../agent-common-workflow` 로 접근해야 함.
 > `WORKSPACE_ROOT=$(cd "$REPO_ROOT/../.." && pwd)` 로 워크스페이스 루트를 먼저 구하고 사용.
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
 INDEX_REPO=$(cd "$REPO_ROOT/.." && pwd)
 WORKSPACE_ROOT=$(cd "$INDEX_REPO/.." && pwd)
-if [ -f "$WORKSPACE_ROOT/claude-common-workflow/.env.local" ]; then
-  source "$WORKSPACE_ROOT/claude-common-workflow/.env.local"   # 중첩 구조
+if [ -f "$WORKSPACE_ROOT/agent-common-workflow/.env.local" ]; then
+  source "$WORKSPACE_ROOT/agent-common-workflow/.env.local"   # 중첩 구조
 else
-  source "$INDEX_REPO/claude-common-workflow/.env.local"       # 플랫 구조
+  source "$INDEX_REPO/agent-common-workflow/.env.local"       # 플랫 구조
 fi
 export JIRA_AUTH="$JIRA_EMAIL:$JIRA_API_TOKEN"
 export JIRA_BASE="$JIRA_URL/rest/api/3"

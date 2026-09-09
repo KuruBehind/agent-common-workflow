@@ -66,7 +66,7 @@ Step 8  종결         티켓 Done → 컨플루언스 문서화 → 워크트�
 # 0. REPO_ROOT 설정 — 모든 크로스 레포 경로의 기준
 #    (워크트리 내부 어디서 실행해도 항상 서브 레포 루트를 가리킴)
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-COMMON_WORKFLOW="$REPO_ROOT/../claude-common-workflow"
+COMMON_WORKFLOW="$REPO_ROOT/../agent-common-workflow"
 
 # 1. 공통 워크플로우 최신화
 git -C "$COMMON_WORKFLOW" pull
@@ -176,7 +176,7 @@ PR 생성 후:
 
 ```bash
 REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../claude-common-workflow/.env.local"
+source "$REPO_ROOT/../agent-common-workflow/.env.local"
 # 상태 Done 전환 + 코멘트 추가 — transition-id는 프로젝트 skills/jira-tickets/SKILL.md 참조
 ```
 

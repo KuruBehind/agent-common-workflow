@@ -1,4 +1,4 @@
-# claude-common-workflow
+# agent-common-workflow
 
 Claude Code 공통 워크플로우 스킬셋. 기술 스택에 무관하게 어느 서비스 그룹에서도 재사용 가능한 범용 스킬 모음.
 
@@ -9,7 +9,7 @@ Claude Code 공통 워크플로우 스킬셋. 기술 스택에 무관하게 어�
 `~/Desktop/dev/` 아래 clone:
 
 ```bash
-git clone https://github.com/KuruBehind/claude-common-workflow ~/Desktop/dev/claude-common-workflow
+git clone https://github.com/KuruBehind/agent-common-workflow ~/Desktop/dev/agent-common-workflow
 ```
 
 ## 사용 방법
@@ -17,14 +17,14 @@ git clone https://github.com/KuruBehind/claude-common-workflow ~/Desktop/dev/cla
 각 서비스 그룹 워크스페이스의 `CLAUDE.md`에서 상대경로로 참조:
 
 ```markdown
-### 공통 워크플로우 스킬 (`../claude-common-workflow/skills/`)
+### 공통 워크플로우 스킬 (`../agent-common-workflow/skills/`)
 
-- **[워크플로우]** `../claude-common-workflow/skills/workflow/SKILL.md`
-- **[브레인스토밍]** `../claude-common-workflow/skills/brainstorming/SKILL.md`
-- **[플랜 작성]** `../claude-common-workflow/skills/writing-plans/SKILL.md`
-- **[서브에이전트]** `../claude-common-workflow/skills/subagent-dev/SKILL.md`
-- **[정책서 작성]** `../claude-common-workflow/skills/writing-policy/SKILL.md`
-- **[Jira 티켓 (템플릿)]** `../claude-common-workflow/skills/jira-tickets/SKILL.md`
+- **[워크플로우]** `../agent-common-workflow/skills/workflow/SKILL.md`
+- **[브레인스토밍]** `../agent-common-workflow/skills/brainstorming/SKILL.md`
+- **[플랜 작성]** `../agent-common-workflow/skills/writing-plans/SKILL.md`
+- **[서브에이전트]** `../agent-common-workflow/skills/subagent-dev/SKILL.md`
+- **[정책서 작성]** `../agent-common-workflow/skills/writing-policy/SKILL.md`
+- **[Jira 티켓 (템플릿)]** `../agent-common-workflow/skills/jira-tickets/SKILL.md`
 ```
 
 CLAUDE.md 전체 템플릿은 이 레포의 `CLAUDE.md`를 복사해 사용하세요.
@@ -60,5 +60,5 @@ my-workspace/
 ## 업데이트
 
 ```bash
-cd ~/Desktop/dev/claude-common-workflow && git pull
+cd ~/Desktop/dev/agent-common-workflow && git pull
 ```
