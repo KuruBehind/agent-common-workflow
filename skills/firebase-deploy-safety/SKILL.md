@@ -1,3 +1,8 @@
+---
+name: firebase-deploy-safety
+description: "Firebase Functions·Hosting 배포 명령을 실행하거나 배포 CI 설정을 작성·수정할 때 사용. 여러 레포가 공유하는 codebase에서 --only functions(함수명 미지정)·--force 배포로 다른 레포의 운영 함수가 삭제되는 사고를 막는다."
+---
+
 # Firebase Functions 배포 안전 수칙
 
 > **2026-07-07 사고:** kuru_mobile `web-deploy.yml`이 `firebase deploy --only hosting,functions --force`로

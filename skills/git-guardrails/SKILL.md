@@ -1,3 +1,8 @@
+---
+name: git-guardrails
+description: "되돌릴 수 없는 git 명령(reset --hard, clean -f, branch -D, checkout ., restore .)을 훅으로 막는 안전장치 설치 가이드. 프로젝트에 git 안전 훅을 설치하거나 설정할 때 사용. git push는 차단 대상이 아니다."
+---
+
 # Git 위험 명령어 하드블록 (opt-in)
 
 > 원본: [mattpocock/skills — git-guardrails-claude-code](https://github.com/mattpocock/skills/tree/main/skills/misc/git-guardrails-claude-code)를 이 팀 상황에 맞게 축소.
