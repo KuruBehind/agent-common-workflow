@@ -15,6 +15,16 @@
 - 요청받지 않은 파일을 임의로 수정하지 마세요.
 - **스킬 파일 수정 시 경로 검증 필수 (에이전트 준수사항):** 수정 완료 후 `grep -r "\.\./agent-common-workflow" skills/` 실행. 결과가 있으면 전부 `$REPO_ROOT/../agent-common-workflow` 패턴으로 교체 후 커밋. 패턴 상세: `docs/conventions/repo-root-path.md`
 
+## 워크트리 위치 (모든 워크스페이스 공통 — 단독 작업 포함)
+
+- 워크트리는 **인덱스 루트의 `worktrees/` 안에만** 만든다. 티켓 워크플로우를 안 타는 단독 작업도 예외 없음
+- 서브 레포 안에서 `git worktree add ../<이름>` 금지 — `../`가 인덱스 루트라 루트에 바로 생긴다. `../worktrees/<이름>`으로 쓴다
+- 이름 규칙: `{TICKET-ID}-{sub-repo-name}-{feature-en}`
+- 정리 규칙은 `skills/workflow/SKILL.md`의 "로컬 리소스 규칙" 참조
+
+> 2026-09-11: kuru 인덱스 루트에 워크트리 200개가 쌓인 걸 확인. 원인은 상시 로드 문서의 예시가 루트 경로
+> (`kuru_mobile-{브랜치명}`)를 적고 있었던 것. 단독 작업 세션들이 워크플로우 Step 1 대신 그 예시를 따랐다.
+
 ---
 
 ## 스킬 배포 방식 (2026-09-09 전환)

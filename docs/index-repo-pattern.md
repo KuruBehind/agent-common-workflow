@@ -94,11 +94,8 @@ Desktop/dev/
 [sub-repo-a]/
 [sub-repo-b]/
 
-# 워크트리 디렉토리 (네이밍 규칙: [project]-feat-*, [project]-fix-*)
-[project]-feat-*/
-[project]-fix-*/
-[project]-[sub]-feat-*/
-[project]-[sub]-fix-*/
+# 워크트리 — 반드시 worktrees/ 안에만 생성 (인덱스 루트에 직접 생성 금지)
+worktrees/
 
 # 프로젝트별 임시/소스 파일
 *.jpg
