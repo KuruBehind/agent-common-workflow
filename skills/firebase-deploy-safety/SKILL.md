@@ -21,7 +21,7 @@ Firebase CLI는 `--only functions`(이름 미지정)로 배포하면 "codebase�
 | `kuru_aggregation` | setOrderList, sendOrderNotify, createDemoAccount, getInquries, onCasReferralSet, setUserOrder | default |
 | `kuru_mart_functions` | notifyChat, notifyChannelChat, kuruchatsend, ShopCompanyInfoUpdate, CompanyUpdatePrice, furigana, makePriceHistory | default |
 | `kuru_cf_check_reservation_email` | checkReservation | default |
-| `kuru_mobile` (웹 SEO) | productSeo, sitemap | default |
+| `kuru_mobile` (웹 SEO — `web-deploy.yml`, 설정 `firebase.seo.json`) | productSeo, categorySeo, sitemap | default |
 | `kuru_functions_legacy` | customSetBot, createUser, downloadOrderList, onGmoCasCustomerAuth, onInstantOrderSet, v2onReceiptCreated/Deleted, kuruapi, kuruai, gmoPaymentApi | default |
 
 **전부 codebase `default`를 공유** → 어느 레포든 이름 없는 functions 배포 한 방이면 나머지 전멸.
