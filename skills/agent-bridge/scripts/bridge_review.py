@@ -1,13 +1,12 @@
 """커밋을 고정한 읽기 전용 리뷰 요청과 CLI 실행을 담당한다."""
 
 import json
-import os
 from pathlib import Path
 import shutil
-import subprocess
 from uuid import uuid4
 
 from bridge_store import commit, git, now, save, snapshot
+from bridge_process import execute
 
 
 def command(runner, executable, repo):
@@ -21,53 +20,37 @@ def command(runner, executable, repo):
 def final_message(runner, output):
     if runner == "claude":
         result = json.loads(output)
+        if not isinstance(result, dict):
+            raise ValueError("Claude 결과가 JSON 객체가 아닙니다.")
         if result.get("is_error") or result.get("subtype") != "success":
             raise ValueError("Claude가 성공 결과를 반환하지 않았습니다.")
-        return result.get("result", ""), result.get("session_id")
+        message = result.get("result", "")
+        if not isinstance(message, str):
+            raise ValueError("Claude 리뷰 본문이 문자열이 아닙니다.")
+        return message, result.get("session_id")
     message, session, completed = "", None, False
     for line in output.splitlines():
         if not line.strip():
             continue
         event = json.loads(line)
+        if not isinstance(event, dict):
+            raise ValueError("Codex 이벤트가 JSON 객체가 아닙니다.")
         if event.get("type") in {"error", "turn.failed"}:
             raise ValueError("Codex 실행 오류 이벤트가 반환되었습니다.")
         if event.get("type") == "thread.started":
             session = event.get("thread_id")
         if event.get("type") == "turn.completed":
             completed = True
-        item = event.get("item", {})
+        item = event.get("item") or {}
+        if not isinstance(item, dict):
+            raise ValueError("Codex 항목이 JSON 객체가 아닙니다.")
         if event.get("type") == "item.completed" and item.get("type") == "agent_message":
             message = item.get("text", "")
     if not completed:
         raise ValueError("Codex 완료 이벤트가 없습니다.")
+    if not isinstance(message, str):
+        raise ValueError("Codex 리뷰 본문이 문자열이 아닙니다.")
     return message, session
-
-
-def stop_process(process):
-    if os.name == "nt":
-        subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
-                       capture_output=True, check=False)
-    else:
-        import signal
-        os.killpg(process.pid, signal.SIGKILL)
-
-
-def execute(arguments, repo, prompt, timeout):
-    with subprocess.Popen(arguments, cwd=repo, stdin=subprocess.PIPE,
-                          stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          encoding="utf-8", errors="replace",
-                          start_new_session=os.name != "nt") as process:
-        try:
-            output, error = process.communicate(prompt, timeout=timeout)
-            return process.returncode, output, error, False
-        except subprocess.TimeoutExpired:
-            stop_process(process)
-            output, error = process.communicate()
-            return process.returncode, output, error, True
-        except BaseException:
-            stop_process(process)
-            process.communicate()
-            raise
 
 
 def review(folder, task, runner, executable=None, timeout=600, dry_run=False):
@@ -114,14 +97,17 @@ def review(folder, task, runner, executable=None, timeout=600, dry_run=False):
     metadata.update(status="running", executable=binary)
     save(result_path, metadata)
     try:
-        code, output, error, timed_out = execute(command(runner, binary, repo), repo, prompt, timeout)
-        (destination / "stdout.log").write_text(output, encoding="utf-8")
-        (destination / "stderr.log").write_text(error, encoding="utf-8")
+        code, process_status = execute(command(runner, binary, repo), repo, destination / "request.md", destination, timeout)
         metadata["exit_code"] = code
-        if timed_out:
+        if process_status == "interrupted":
+            metadata.update(status="interrupted", finished_at=now())
+            save(result_path, metadata)
+            return metadata, destination
+        if process_status == "timeout":
             raise TimeoutError("리뷰 실행 제한 시간을 초과했습니다.")
         if code:
             raise ValueError(f"리뷰 CLI가 종료 코드 {code}로 실패했습니다. stderr.log를 확인하세요.")
+        output = (destination / "stdout.log").read_text(encoding="utf-8", errors="replace")
         message, session = final_message(runner, output)
         if not message.strip():
             raise ValueError("리뷰 본문이 비어 있습니다.")
@@ -131,10 +117,10 @@ def review(folder, task, runner, executable=None, timeout=600, dry_run=False):
             metadata["status"] = "stale"
     except (OSError, ValueError, TimeoutError) as error:
         metadata.update(status="failed", error=str(error))
-    except BaseException:
+    except KeyboardInterrupt:
         metadata.update(status="interrupted", finished_at=now())
         save(result_path, metadata)
-        raise
+        return metadata, destination
     metadata["finished_at"] = now()
     save(result_path, metadata)
     return metadata, destination

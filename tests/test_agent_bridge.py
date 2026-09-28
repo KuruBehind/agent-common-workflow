@@ -2,10 +2,12 @@
 
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -13,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'skills/agent-bridg
 from agent_bridge import parser, run
 from bridge_store import load, locked, snapshot
 from bridge_review import final_message
+from bridge_process import execute, WindowsJob
 
 
 class BridgeTest(unittest.TestCase):
@@ -108,7 +111,13 @@ class BridgeTest(unittest.TestCase):
         self.assertEqual(result['result']['head'], self.git('rev-parse', 'HEAD').strip())
 
     def mock_review(self, response, side_effect=None):
-        with patch('bridge_review.shutil.which', return_value='agent.exe'), patch('bridge_review.execute', return_value=response, side_effect=side_effect):
+        def invoke(*args):
+            code, output, error, timed_out = side_effect(*args) if side_effect else response
+            destination = Path(args[3])
+            (destination / 'stdout.log').write_text(output, encoding='utf-8')
+            (destination / 'stderr.log').write_text(error, encoding='utf-8')
+            return code, 'timeout' if timed_out else 'exited'
+        with patch('bridge_review.shutil.which', return_value='agent.exe'), patch('bridge_review.execute', side_effect=invoke):
             return self.call('review', '--owner', 'codex:one', '--runner', 'claude')
 
     def test_cli_failure_timeout_empty_and_success(self):
@@ -140,6 +149,56 @@ class BridgeTest(unittest.TestCase):
             final_message('codex', '\n'.join(lines))
         lines.append(json.dumps({'type': 'turn.completed'}))
         self.assertEqual(final_message('codex', '\n'.join(lines)), ('리뷰', 's1'))
+
+    def test_interruption_updates_latest_review(self):
+        self.change_commit()
+        output = json.dumps({'subtype': 'success', 'result': '기존 리뷰'})
+        self.mock_review((0, output, '', False))
+        with patch('bridge_review.shutil.which', return_value='agent.exe'), patch('bridge_review.execute', side_effect=KeyboardInterrupt):
+            result, code = self.call('review', '--owner', 'codex:one', '--runner', 'claude')
+        self.assertEqual(code, 1)
+        self.assertEqual(load(self.folder)['last_review']['status'], 'interrupted')
+
+    def test_malformed_success_rejected(self):
+        for output in ('[]', '{"subtype":"success","result":[]}', '{"subtype":"success","result":null}'):
+            with self.assertRaises(ValueError):
+                final_message('claude', output)
+
+    def test_process_timeout_preserves_output(self):
+        request = self.root / 'request.md'
+        request.write_text('테스트', encoding='utf-8')
+        start = time.monotonic()
+        code, status = execute([sys.executable, '-c', 'import time; print("started", flush=True); time.sleep(10)'],
+                               self.repo, request, self.root, 0.5)
+        self.assertEqual(status, 'timeout')
+        self.assertLess(time.monotonic() - start, 3)
+        self.assertIn('started', (self.root / 'stdout.log').read_text())
+
+    def test_parent_exit_does_not_wait_for_inherited_pipes(self):
+        request = self.root / 'request.md'
+        request.write_text('테스트', encoding='utf-8')
+        child = 'import subprocess,sys; subprocess.Popen([sys.executable,"-c","import time; time.sleep(4)"]); print("parent",flush=True)'
+        start = time.monotonic()
+        code, status = execute([sys.executable, '-c', child], self.repo, request, self.root, 0.5)
+        self.assertEqual(status, 'exited')
+        self.assertLess(time.monotonic() - start, 3)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows 프로세스 등록 검증')
+    def test_child_cannot_escape_before_job_assignment(self):
+        request = self.root / 'request.md'
+        request.write_text('테스트', encoding='utf-8')
+        marker = self.root / 'survivor.txt'
+        child = 'import time,pathlib; time.sleep(1); pathlib.Path(' + repr(str(marker)) + ').write_text("survived")'
+        parent = 'import subprocess,sys,time; subprocess.Popen([sys.executable,"-c",' + repr(child) + ']); time.sleep(10)'
+        original = WindowsJob.assign
+        def delayed(job, process):
+            time.sleep(0.3)
+            original(job, process)
+        with patch.object(WindowsJob, 'assign', delayed):
+            code, status = execute([sys.executable, '-c', parent], self.repo, request, self.root, 0.2)
+        time.sleep(1.1)
+        self.assertEqual(status, 'timeout')
+        self.assertFalse(marker.exists(), 'Job 종료 뒤 자식 프로세스가 실행되었습니다.')
 
 
 if __name__ == '__main__':

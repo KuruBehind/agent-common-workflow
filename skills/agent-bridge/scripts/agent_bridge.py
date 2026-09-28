@@ -90,6 +90,8 @@ def run(args):
 
 
 def main():
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     try:
         result, code = run(parser().parse_args())
         print(json.dumps(result, ensure_ascii=False, indent=2))
