@@ -70,6 +70,7 @@
 |------|------|
 | `brainstorming` | Step 2 — 기능·컴포넌트 신규 설계 전 (코드 작성 전 hard gate) |
 | `writing-plans` | Step 3 — 스펙을 구현 플랜으로 변환 |
+| `agent-bridge` | Claude·Codex 간 핸드오버·작업 인수·다른 모델의 교차 리뷰 |
 | `jira-tickets` | Step 0 — 티켓 진입·조회 (티켓 없는 진입은 Step 3 완료 후 생성). 자격증명·프로젝트 매핑은 각 워크스페이스 오버라이드 참조 |
 | `subagent-dev` | Step 4 — 독립 태스크를 서브에이전트로 실행 |
 | `writing-policy` | Step 8 — 기획 정책서·개발 독스 작성 |
