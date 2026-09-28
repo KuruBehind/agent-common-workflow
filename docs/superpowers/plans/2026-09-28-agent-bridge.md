@@ -24,4 +24,3 @@
 - 실제 Codex 호출은 코드 전송에 대한 명시적 승인 부족으로 자동 승인 검토가 거절. 요청 파일 생성까지 검증했으며 모델 호출은 사용자 응답 대기.
 - skill-creator quick_validate.py는 설치 환경에 PyYAML이 없어 실행하지 못함. frontmatter/name/description과 상대 경로는 직접 검사.
 - PR/머지/Jira 티켓 생성은 수행하지 않음. 소스는 codex/agent-bridge 브랜치의 격리 워크트리에 보존.
-
