@@ -76,6 +76,7 @@
 | `jira-tickets` | Step 0 — 티켓 진입·조회 (티켓 없는 진입은 Step 3 완료 후 생성). 자격증명·프로젝트 매핑은 각 워크스페이스 오버라이드 참조 |
 | `subagent-dev` | Step 4 — 독립 태스크를 서브에이전트로 실행 |
 | `writing-policy` | Step 8 — 기획 정책서·개발 독스 작성 |
+| `artifact-publishing` | 코드 문구·화면·정책을 내부 공유 페이지(Claude Artifact)로 게시하거나, 게시된 페이지의 원본을 바꿔 재게시할 때 — 원본 위치·같은 URL 재게시·공유/편집 권한·Codex 인계 |
 | `cost-proportionality-review` | 새 API·DB 쿼리·스케줄러/인프라·외부 유료 API **설계 시 필수 선통과** |
 | `diagnosing-bugs` | 어려운 버그·성능 회귀 진단 (피드백 루프 우선 6단계) |
 | `gcloud` | GCP 로그 조회, Cloud Functions/Scheduler 관리 |

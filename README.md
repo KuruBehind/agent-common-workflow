@@ -39,6 +39,7 @@ CLAUDE.md 전체 템플릿은 이 레포의 `CLAUDE.md`를 복사해 사용하�
 | `skills/jira-tickets` | Step 0c | Jira 티켓 생성 (템플릿) |
 | `skills/subagent-dev` | Step 2 | 태스크별 독립 에이전트 실행 |
 | `skills/writing-policy` | Step 7 | 기획 정책서 + 개발 독스 작성 |
+| `skills/artifact-publishing` | 상황부 | 내부 공유 페이지(Claude Artifact) 게시·동기화·권한 |
 
 ## 프로젝트별 오버라이드
 
