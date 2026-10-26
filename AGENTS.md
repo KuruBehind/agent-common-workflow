@@ -79,6 +79,7 @@
 | `artifact-publishing` | 코드 문구·화면·정책을 내부 공유 페이지(Claude Artifact)로 게시하거나, 게시된 페이지의 원본을 바꿔 재게시할 때 — 원본 위치·같은 URL 재게시·공유/편집 권한·Codex 인계 |
 | `cost-proportionality-review` | 새 API·DB 쿼리·스케줄러/인프라·외부 유료 API **설계 시 필수 선통과** |
 | `diagnosing-bugs` | 어려운 버그·성능 회귀 진단 (피드백 루프 우선 6단계) |
+| `e2e-qa` | 화면 기능을 dev 에서 실제 조작해 확인할 때 — 에이전트가 브라우저를 직접 조작(Playwright·CDP), 인증만 사용자에게 요청, 여러 서비스는 한 프로필의 탭으로, 화면+데이터 짝 확인 |
 | `gcloud` | GCP 로그 조회, Cloud Functions/Scheduler 관리 |
 | `firebase-deploy-safety` | Firebase Functions 배포 — 공유 codebase 파괴 방지 (2026-07-07 함수 23개 전멸 사고 재발 방지) |
 | `ralph-loop` | Step 4 — 정적 검증·빌드 오류 자동 반복 수정 루프 |
