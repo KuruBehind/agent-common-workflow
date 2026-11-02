@@ -17,6 +17,15 @@ QA 는 "이렇게 해 보세요" 가 아니라 **에이전트가 열고, 누르�
 ## 절차
 
 1. **최신 코드로** — 배포본이 아니라 `origin/dev`+작업 브랜치를 로컬 빌드해 띄운다. 옛 서버는 **내가 띄운 PID 만** 종료. 브라우저·dart 등 전역 종료 금지.
+   - **Flutter 웹은 처음부터 입력 파이프로 띄운다(기본값)** — 백그라운드 `flutter run` 은 키 입력을 못 받아, 코드를 고칠 때마다 통째로 재빌드(1~2분)하게 된다. 파이프를 연결해 두면 핫 리스타트(수 초)로 반영된다.
+     ```bash
+     F=<스크래치패드>/flutter_in; rm -f $F; mkfifo $F
+     tail -f $F | fvm flutter run -d web-server --web-port <포트> --web-hostname 127.0.0.1 [--dart-define=…] -t lib/main.dart   # run_in_background
+     printf R > $F   # 코드 수정 후 핫 리스타트(상태 초기화). 위젯만 바꿨으면 r(핫 리로드)
+     ```
+     출력에 `Restarted application` 이 찍히면 반영된 것이다. 재빌드는 의존성(pubspec)·네이티브·dart-define 변경 때만.
+   - 수정은 모아서 한 번에 반영한다 — 한 줄 고칠 때마다 띄우고 확인하지 않는다.
+   - **대기는 전부 백그라운드** — 빌드 완료·배포·서버 기동을 기다리는 루프(`until …; sleep`)를 포그라운드로 돌리지 않는다. 그동안 사용자 메시지가 막힌다. `run_in_background` 로 걸고 완료 알림을 받아 이어 간다.
 2. **브라우저 기동** (한 번만, `run_in_background` — `&` 는 셸과 함께 정리될 수 있다) — `QA_NAME=<티켓> node $SKILLS/e2e-qa/scripts/qa-browser.mjs <URL…>`. URL 수만큼 탭이 열리고, 프로필은 `%TEMP%/claude/qa-browser-<QA_NAME>` 에 남아 다음 세션에도 로그인이 유지된다.
 3. **인증 요청** — 로그인 화면 스크린샷을 본 뒤 요청.
 4. **조작** — `QA_SHOT_DIR=<스크래치패드 절대경로> node $SKILLS/e2e-qa/scripts/qa-act.mjs <NN>_<단계> '<JSON 동작>'`. 동작 목록은 스크립트 머리말. 매 실행 뒤 스크린샷 경로가 찍힌다 — **반드시 Read 로 보고** 다음 동작을 정한다. 보지 않은 화면을 "정상" 이라 하지 않는다.
