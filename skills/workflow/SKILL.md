@@ -247,6 +247,14 @@ gh pr merge <번호> --merge --match-head-commit "$APPROVED"   # 승인 뒤 push
 
 - 동승을 배포 후 발견하면 배포 런을 즉시 취소(트래픽은 이전 리비전 유지). 릴리즈 브랜치에 revert 를 얹지 말고 "이전 상태 + 승인 커밋 체리픽"으로 재구성 — 이력 재작성은 사용자 결정
 
+**운영 머지 뒤 역머지 (같은 날)** — 체리픽 승격만 반복하면 dev·main 이 갈라진다
+- 운영 브랜치에 머지(체리픽·핫픽스 포함)했으면 **같은 날** main→dev 동기화 PR 을 머지한다. 자동 생성분(`sync/<운영 브랜치>-to-dev`)이 있으면 그것, 없으면 직접 연다. 머지 확인 규칙은 일반 PR 과 같다
+- 동기화 PR 은 **merge commit** 으로 머지(squash 금지 — 조상 관계가 안 남아 같은 델타가 계속 뜬다)
+- 핫픽스는 같은 변경을 dev 에도 넣는다(동기화 PR 로, 또는 dev 대상 PR 을 따로)
+- 모바일은 `main-web`·`main` 두 줄기 모두 해당
+- `main` 에 `[skip ci]` 머지 금지 — 스토어 빌드가 빠지고 push 워크플로(동기화 PR 생성 포함)도 돌지 않는다
+- 완료 확인: `git merge-base --is-ancestor origin/<운영 브랜치> origin/dev` 가 참
+
 ---
 
 ## Step 7. 리뷰 루프
