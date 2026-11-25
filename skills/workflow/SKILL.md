@@ -42,7 +42,7 @@ Step 3  플랜         구현 계획 작성 (버그: 경량 버전)
 Step 4  구현+검증    코드 → 단위테스트 → 정적검증 루프
 Step 5  리뷰         서브에이전트 적대적 리뷰 (필수, PR 전 최소 1회 — 이후 추가 여부 질문)
 Step 6  PR+확인      PR 생성 → 티켓 remotelink 연결 → 개발 서버 실행
-Step 6-b 운영 승격    체리픽 우선 · 머지 직전 델타 재확인 · --match-head-commit (승인 후)
+Step 6-b 운영 승격    정기 릴리즈(dev→main 통째) · 핫픽스만 체리픽+당일 역머지 · Draft/hold 는 dev 머지 금지
 Step 7  리뷰 루프    사용자 피드백 → 코드 개선 → 티켓 업데이트
 Step 8  종결         티켓 Done → 컨플루언스 문서화 → 이 세션이 만든 포트·워크트리 정리 (남기면 목록 보고)
 ```
@@ -231,136 +231,21 @@ PR 생성 후:
 
 ---
 
-## Step 6-b. 운영 승격 (예: dev → main)
+## Step 6-b. 운영 승격 (dev → main)
 
-- 특정 수정만 내보낼 때는 릴리즈 브랜치에 **해당 커밋만 체리픽**. 기본 브랜치 전체 머지는 델타가 승인 목록과 같을 때만
-- 머지 직전에 델타를 **다시** 확인한다. 승인 목록과 다르면 머지하지 않고 보고
+**기본 = 정기 릴리즈** (주기는 워크스페이스 결정 — kuru: 화·목 오후, 스토어 앱 포함)
+- 레포별 dev→main **통째** PR. 승인은 릴리즈마다 「포함 PR 목록·영향 표」 1회
+- 서버 먼저, 그다음 화면. 짝은 **티켓 키**로 묶어 본다 — 브랜치·PR 제목에 같은 키(`[KBO-950] …`), 표는 티켓별로 짝 상태 표시
+- dev 에 머지된 것만 나간다. 그래서 작업 중 PR 은 **Draft**, 끝났지만 결정 대기면 `hold` 라벨(사유는 본문 첫 줄). 둘 다 dev 머지 금지
 
-```bash
-# <head> = 승격 PR 의 head 브랜치 (전체 머지면 dev, 체리픽이면 체리픽 브랜치)
-git fetch origin <head> <release>
-git log --oneline origin/<release>..origin/<head>        # 델타를 보여주고 승인
-APPROVED=$(git rev-parse origin/<head>)                  # 승인 시점 head SHA 기록
-# ... 사용자 승인 ...
-gh pr merge <번호> --merge --match-head-commit "$APPROVED"   # 승인 뒤 push 가 있었으면 실패 → 델타 재확인
-```
+**핫픽스** (정기 외 급한 것만)
+- main 에서 `hotfix/<티켓>` — 서버·화면 짝을 함께 체리픽해 함께 낸다
+- 운영 반영 **같은 날** main→dev 역머지 PR(자동 생성분 `sync/<운영 브랜치>-to-dev` 있으면 그것)을 merge commit 으로 머지
+- 완료 확인: `git merge-base --is-ancestor origin/<운영 브랜치> origin/dev`
 
-- 동승을 배포 후 발견하면 배포 런을 즉시 취소(트래픽은 이전 리비전 유지). 릴리즈 브랜치에 revert 를 얹지 말고 "이전 상태 + 승인 커밋 체리픽"으로 재구성 — 이력 재작성은 사용자 결정
+**공통**
+- 머지 직전 델타 재확인 — `gh pr merge <번호> --merge --match-head-commit <승인 시 head SHA>`
+- 모바일은 `main-web`·`main` 두 줄기 모두 해당. `main` 에 `[skip ci]` 머지 금지(스토어 빌드 누락)
+- 동승을 배포 후 발견하면 배포 런 즉시 취소, 재구성은 사용자 결정
 
----
 
-## Step 7. 리뷰 루프
-
-사용자 종결 선언 전까지:
-- 피드백 반영 → 코드 개선
-- Jira 코멘트 업데이트 (확정 변경 사항만, 이유 한 줄 포함)
-- 정적 검증 + 서브에이전트 리뷰 반복 (로직·데이터 경로를 바꾸는 변경이 들어가면 적대적 리뷰 재실행)
-
----
-
-## Step 8. 종결
-
-**순서대로:**
-
-**1. 티켓 Done 전환 + 구현 내용 코멘트** (jira-tickets 스킬 → `act` 단계)
-
-```bash
-REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-source "$REPO_ROOT/../agent-common-workflow/.env.local"
-# 상태 Done 전환 + 코멘트 (PR 링크 포함)
-# transition-id는 프로젝트 skills/jira-tickets/SKILL.md 참조
-```
-
-**2. 컨플루언스 문서화** (사용자 확인)
-- 피쳐 구현 → 기획 문서 (비개발자 수준, `writing-policy` 7-a 준용)
-- 순수 개발 작업 → 기술 문서 (아키텍처/연동 구조, `writing-policy` 7-b 준용)
-- 연동 방식: 각 프로젝트 `skills/confluence/SKILL.md` 참조. 없으면 수동 게시 후 URL을 티켓 코멘트에 첨부.
-
-**3. 이 세션이 만든 포트·워크트리 정리** (아래 "로컬 리소스 규칙" 준수, 사용자 확인)
-
-- 포트: **이 세션이 띄운 PID만** 종료
-- 워크트리: PR MERGED + 미커밋 없음 + 머지 후 추가 커밋 없음을 확인한 뒤 제거
-- 사용자가 "나중에"라고 하면 그대로 두되, **남긴 워크트리 경로·포트·PID를 종결 보고에 목록으로 남긴다.** 말없이 남기고 끝내지 않는다 — 워크트리가 수백 개씩 쌓이는 원인이 이것이다
-
----
-
-## 로컬 리소스 규칙 (포트·워크트리)
-
-같은 머신에서 여러 세션과 사용자 프로세스가 동시에 돈다. **이 세션이 만든 것만 정리하고, 남이 만든 것은 건드리지 않는다.**
-
-### 포트
-
-- **점유된 포트에 띄우지 않는다.** 기본 포트가 사용 중이면 그 프로세스를 죽이지 말고 빈 포트를 새로 잡는다
-- 점유 프로세스 kill 금지 — 다른 세션의 개발 서버이거나 사용자가 띄운 앱일 수 있다
-- 프로세스명 기준 일괄 종료(`taskkill /IM ...`, `pkill ...`) 금지. 사용자 브라우저·다른 세션까지 같이 죽는다
-- 띄운 포트와 PID를 기록해두고, 결과를 줄 때 URL과 함께 알린다
-
-```bash
-PORT={기본포트}   # 서브 레포 CLAUDE.md 참조
-
-# Windows (Git Bash) — 반드시 전체 경로. Git Bash PATH에 netstat가 없는 환경이 있고,
-# 그러면 grep이 조용히 실패해 점유된 포트를 "빈 포트"로 오판한다 (2026-09-11 실측)
-NETSTAT=/c/Windows/System32/NETSTAT.EXE
-[ -x "$NETSTAT" ] && "$NETSTAT" -ano | grep -q LISTENING || { echo "포트 조회 불가 — 중단"; exit 1; }
-while "$NETSTAT" -ano | grep -q ":$PORT .*LISTENING"; do PORT=$((PORT+1)); done
-
-# macOS / Linux
-command -v lsof >/dev/null || { echo "lsof 없음 — 중단"; exit 1; }
-while lsof -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; do PORT=$((PORT+1)); done
-
-echo "사용 포트: $PORT"
-```
-
-> 조회 도구가 없거나 결과가 비면 **추정으로 진행하지 말고 멈춘다.** "점유 없음"과 "조회 실패"를 구분하지 못하면 다른 세션 서버와 같은 포트를 잡는다.
-
-### 워크트리
-
-- 만든 워크트리 경로를 기록해둔다 (종결 보고에 사용)
-- **제거 시점**: 해당 브랜치의 PR이 MERGED 된 뒤
-- **제거 전 확인** — 하나라도 걸리면 제거하지 말고 사용자에게 보고:
-
-```bash
-path="$INDEX_REPO/worktrees/{워크트리명}"; branch="{브랜치}"
-git -C "$path" status --porcelain                         # 비어 있어야 함 (미커밋 없음)
-head=$(gh pr list --head "$branch" --state merged --json headRefOid -q '.[0].headRefOid')
-git -C "$path" log --oneline "$head"..HEAD                # 비어 있어야 함 (머지 후 추가 커밋 없음)
-git worktree remove "$path"
-```
-
-- **정기 정리는 자동** — `tools/prune-worktrees.sh` 가 머신 스케줄러로 매일 돌며, 수정 없고 머지된 지 3일 지난 워크트리를 지운다(브랜치·커밋은 남음). 에이전트가 남의 워크트리까지 후보를 뽑아 정리하지 않는다. 등록은 머신 구성 때 1회 — 절차는 이 레포 README 「워크트리 자동 정리」
-
----
-
-## 예외 경로
-
-| 예외 | 조건 | 처리 |
-|------|------|------|
-| A. 경량 사이클 | 코드 변경 없는 설정·문서 수정 | Step 2·3 생략. 정적 검증 필수 |
-| B. dev 직접 푸시 | 경량 사이클 + 사용자 명시 요청 | 워크트리 없이 직접 커밋 가능 |
-| C. 머지 충돌 | `git merge` 충돌 | 충돌 해결 + 재검증 후 Step 6 재진입 |
-| D. 세션 재개 | PR URL·브랜치명으로 재개 요청 | 아래 절차 |
-| E. 티켓 없음 | 기존 대화 방식으로 진입 | Step 0 생략 → 브레인스토밍·플랜 진행 → Step 3 완료 후 티켓 생성 → Step 4 진입 |
-
-**예외 D — 세션 재개:**
-
-`agent-bridge` 인계 기록을 받은 경우에는 해당 스킬의 상태 확인·인수 절차를 우선한다. 살아 있는 작업의 워크트리를 제거하거나 다시 생성하지 않고 미커밋 상태와 담당자를 확인한 뒤 재사용한다.
-
-```bash
-REPO_ROOT=$(git rev-parse --git-common-dir | xargs dirname)
-INDEX_REPO=$(cd "$REPO_ROOT/.." && pwd)
-
-gh pr view {PR_URL}                                                    # 브랜치명·상태 확인
-git worktree list                                                       # 기존 워크트리 확인
-git worktree remove "$INDEX_REPO/worktrees/{TICKET-ID}-{sub-repo-name}-{feature-en}"  # 있으면 제거
-
-cd "$REPO_ROOT"
-git fetch origin feat/{TICKET-ID}-{sub-repo-name}-{feature-en}
-git worktree add "$INDEX_REPO/worktrees/{TICKET-ID}-{sub-repo-name}-{feature-en}" origin/feat/{TICKET-ID}-{sub-repo-name}-{feature-en}
-cd "$INDEX_REPO/worktrees/{TICKET-ID}-{sub-repo-name}-{feature-en}" && git pull
-# 의존성 재설치 (skills/workflow-env/SKILL.md 참조)
-
-# context.md 재생성 — jira-tickets 스킬 → "context.md 생성" 실행
-git log --oneline -5 && git diff origin/dev...HEAD --stat  # 상태 보고
-```
-
-상태 보고 후 사용자 확인을 받고 이어갈 step 결정.
