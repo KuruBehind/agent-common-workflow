@@ -12,6 +12,42 @@ Claude Code 공통 워크플로우 스킬셋. 기술 스택에 무관하게 어�
 git clone https://github.com/KuruBehind/agent-common-workflow ~/Desktop/dev/agent-common-workflow
 ```
 
+### 워크트리 자동 정리 (머신마다 1회 등록)
+
+작업마다 `<인덱스 레포>/worktrees/` 에 워크트리가 생긴다. 세션 종결 때 지우는 규칙만으로는 쌓여서
+(한 머신 1,400개, 에디터 언어 서버 메모리 30GB 이상 — 2026-11-25), 정리는 `tools/prune-worktrees.sh` 를
+머신 스케줄러에 걸어 자동으로 돌린다. 수정이 없고 머지된 지 3일 지난 워크트리만 지우며, 브랜치·커밋은 남는다
+(기준 상세는 스크립트 상단 주석).
+
+먼저 미리보기로 확인한다:
+
+```bash
+bash ~/Desktop/dev/agent-common-workflow/tools/prune-worktrees.sh --dry-run ~/Desktop/dev/<인덱스 레포>
+```
+
+**Windows** (PowerShell, 관리자 권한 불필요) — 매일 12:30, PC 가 꺼져 있어 놓치면 켤 때 실행. 창은 뜨지 않는다:
+
+```powershell
+$roots = '~/Desktop/dev/kuru'   # 인덱스 레포가 여럿이면 공백으로 나열: '~/Desktop/dev/kuru ~/Desktop/dev/pin'
+$cmd   = "bash ~/Desktop/dev/agent-common-workflow/tools/prune-worktrees.sh $roots >> ~/.prune-worktrees.log 2>&1"
+$act   = New-ScheduledTaskAction -Execute 'conhost.exe' -Argument "--headless `"C:\Program Files\Git\bin\bash.exe`" -lc `"$cmd`""
+$trg   = New-ScheduledTaskTrigger -Daily -At 12:30
+$set   = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 2)
+Register-ScheduledTask -TaskName prune-worktrees -Action $act -Trigger $trg -Settings $set -Force
+```
+
+**macOS** — `crontab -e` 에 한 줄 (잠자기로 놓친 실행은 건너뛴다):
+
+```
+30 12 * * * bash ~/Desktop/dev/agent-common-workflow/tools/prune-worktrees.sh ~/Desktop/dev/<인덱스 레포> >> ~/.prune-worktrees.log 2>&1
+```
+
+결과는 `~/.prune-worktrees.log`. 등록 확인: Windows `Get-ScheduledTask prune-worktrees`, macOS `crontab -l`.
+
+> **에디터 설정도 함께** — 인덱스 루트를 VS Code 로 열면 언어 서버가 `worktrees/` 안 프로젝트를 전부 분석한다.
+> 인덱스 레포 `.vscode/settings.json` 에 `worktrees` 를 분석·감시·검색 제외로 둘 것
+> (Dart 는 `dart.analysisExcludedFolders`, 공통은 `files.watcherExclude`·`search.exclude`).
+
 ## 사용 방법
 
 각 서비스 그룹 워크스페이스의 `CLAUDE.md`에서 상대경로로 참조:

@@ -327,21 +327,7 @@ git -C "$path" log --oneline "$head"..HEAD                # 비어 있어야 함
 git worktree remove "$path"
 ```
 
-- **정기 정리** — 세션 시작(Step 1)이나 종결(Step 8)에서, PR이 MERGED인 워크트리를 제거 후보로 뽑아 보고한다:
-
-```bash
-# 첫 항목(메인 체크아웃)은 제외 — git worktree remove 대상이 아니다
-# 기본 브랜치(dev/main/master)도 제외 — 과거 dev→main PR이 MERGED라 오탐된다
-git worktree list --porcelain \
-  | awk '/^worktree /{p=$2; n++} /^branch /{sub("refs/heads/","",$2); if (n>1) print p" "$2}' \
-  | while read -r p b; do
-      case "$b" in dev|main|master) continue ;; esac
-      s=$(gh pr list --head "$b" --state all --json state -q '.[0].state' 2>/dev/null)
-      [ "$s" = "MERGED" ] && echo "제거 후보: $p ($b)"
-    done
-```
-
-  후보는 **보고만 하고**, 위 "제거 전 확인"을 통과한 것만 사용자 확인 후 제거한다. 다른 세션이 쓰는 중일 수 있다.
+- **정기 정리는 자동** — `tools/prune-worktrees.sh` 가 머신 스케줄러로 매일 돌며, 수정 없고 머지된 지 3일 지난 워크트리를 지운다(브랜치·커밋은 남음). 에이전트가 남의 워크트리까지 후보를 뽑아 정리하지 않는다. 등록은 머신 구성 때 1회 — 절차는 이 레포 README 「워크트리 자동 정리」
 
 ---
 
