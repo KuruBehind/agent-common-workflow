@@ -48,6 +48,7 @@ Desktop/dev/
 | `git-guardrails/` | `git reset --hard`/`clean -f`/`branch -D` 등 되돌릴 수 없는 명령어를 훅으로 하드블록 (프로젝트별 opt-in 설치, [mattpocock/skills](https://github.com/mattpocock/skills)에서 push 제외하고 축소 이식) |
 | `cost-proportionality-review/` | 새 API·DB 쿼리·스케줄러/인프라·외부 유료 API 설계 시, 비용 구조가 실사용 목적·빈도에 비례하는지 점검 (kuru/sabakeru 실사고 근거). `brainstorming` 체크리스트에서 참조됨 |
 | `e2e-qa/` | dev 환경 E2E QA 절차 — 에이전트가 Playwright 영구 프로필 브라우저를 CDP 로 직접 조작, 인증만 사용자 요청, 여러 서비스는 한 프로필의 탭, 스크린샷 순번·화면+데이터 짝 확인·보고 표. `scripts/qa-browser.mjs`(기동)·`scripts/qa-act.mjs`(조작)·`scripts/qa-stop.mjs`(종료) 동봉 |
+| `ui-mockup/` | 화면 시안 기본 형식 — 로컬에서 띄운 실제 화면을 캡처해 Design 캔버스(피그마식 아트보드) 바탕에 깔고 바뀌는 자리만 같은 토큰·문구로 그림. 장면별 아트보드, 대화상자는 dc-import 로 겹치기, 캡처 함정(Flutter release·CDP 포트·창 폭) |
 
 ## 오버라이드 방법
 
