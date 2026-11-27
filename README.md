@@ -44,6 +44,31 @@ Register-ScheduledTask -TaskName prune-worktrees -Action $act -Trigger $trg -Set
 
 결과는 `~/.prune-worktrees.log`. 등록 확인: Windows `Get-ScheduledTask prune-worktrees`, macOS `crontab -l`.
 
+### 개발 프로세스 자동 정리 (Windows, 머신마다 1회 등록)
+
+세션이 끝나도 QA 브라우저·vite/flutter 웹 서버·멈춘 gcloud 가 남아 메모리를 채운다
+(한 머신 커밋 메모리 99%, 잔여물 약 27GB — 2026-11-27). `tools/prune-dev-processes.ps1` 이 실행 시간 기준으로 정리한다:
+임시 프로필 QA 브라우저 12시간·개발 서버 24시간·gcloud 15분 초과. 사용자 본인 Chrome(기본 프로필)은 대상이 아니다.
+
+미리보기:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File $HOME\Desktop\dev\agent-common-workflow\tools\prune-dev-processes.ps1 -DryRun
+```
+
+등록 (1시간마다, 창 없음, 관리자 권한 불필요):
+
+```powershell
+$ps  = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
+$arg = "--headless `"$ps`" -NoProfile -ExecutionPolicy Bypass -Command `"& '$HOME\Desktop\dev\agent-common-workflow\tools\prune-dev-processes.ps1' *>&1 | Out-File -Append -Encoding utf8 '$HOME\.prune-dev-processes.log'`""
+$act = New-ScheduledTaskAction -Execute 'conhost.exe' -Argument $arg
+$trg = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 1)
+$set = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 10)
+Register-ScheduledTask -TaskName prune-dev-processes -Action $act -Trigger $trg -Settings $set -Force
+```
+
+결과는 `~/.prune-dev-processes.log`. 기준을 바꾸려면 `-QaBrowserHours`·`-DevServerHours`·`-GcloudMinutes` 를 붙인다.
+
 > **에디터 설정도 함께** — 인덱스 루트를 VS Code 로 열면 언어 서버가 `worktrees/` 안 프로젝트를 전부 분석한다.
 > 인덱스 레포 `.vscode/settings.json` 에 `worktrees` 를 분석·감시·검색 제외로 둘 것
 > (Dart 는 `dart.analysisExcludedFolders`, 공통은 `files.watcherExclude`·`search.exclude`).
